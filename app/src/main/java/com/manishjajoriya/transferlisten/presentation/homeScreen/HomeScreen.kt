@@ -27,59 +27,58 @@ import com.manishjajoriya.transferlisten.utils.Constants
 fun HomeScreen(modifier: Modifier) {
 
   Column(modifier = modifier.padding(start = 8.dp, end = 8.dp)) {
-    Spacer(
-      Modifier
-        .height(Constants.largePadding)
-        .fillMaxWidth()
-    )
+    Spacer(Modifier.height(Constants.largePadding).fillMaxWidth())
     Text(
-      text = "Upload Playlist", style = TextStyle(
-        fontSize = Constants.largeFontSize,
-        fontWeight = FontWeight.Bold,
-        fontFamily = Constants.customFont
-      )
+        text = "Upload Playlist",
+        style =
+            TextStyle(
+                fontSize = Constants.largeFontSize,
+                fontWeight = FontWeight.Bold,
+                fontFamily = Constants.customFont,
+            ),
     )
     Spacer(Modifier.height(Constants.smallPadding))
     Text(
-      text = "Upload a song.csv file to fetch songs.", style = TextStyle(
-        fontSize = Constants.smallFontSize,
-        fontWeight = FontWeight.Light,
-        fontFamily = Constants.customFont
-      )
+        text = "Upload a song.csv file to fetch songs.",
+        style =
+            TextStyle(
+                fontSize = Constants.smallFontSize,
+                fontWeight = FontWeight.Light,
+                fontFamily = Constants.customFont,
+            ),
     )
     Spacer(Modifier.height(Constants.mediumPadding))
 
     Column(
-      modifier = Modifier
-        .height(120.dp)
-        .fillMaxWidth()
-        .drawBehind {
-          val strokeWidth = 2.dp.toPx()
-          val cornerRadius = 20.dp.toPx()
-          val pathEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 20f), 0f)
-          drawRoundRect(
-            color = Color.LightGray,
-            style = Stroke(width = strokeWidth, pathEffect = pathEffect),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadius, cornerRadius)
-          )
-        },
-      horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.Center
+        modifier =
+            Modifier.height(120.dp).fillMaxWidth().drawBehind {
+              val strokeWidth = 2.dp.toPx()
+              val cornerRadius = 20.dp.toPx()
+              val pathEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 20f), 0f)
+              drawRoundRect(
+                  color = Color.LightGray,
+                  style = Stroke(width = strokeWidth, pathEffect = pathEffect),
+                  cornerRadius =
+                      androidx.compose.ui.geometry.CornerRadius(cornerRadius, cornerRadius),
+              )
+            },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
       Image(
-        modifier = Modifier.size(36.dp),
-        painter = painterResource(R.drawable.outlined_cloud_upload),
-        contentDescription = "upload"
+          modifier = Modifier.size(36.dp),
+          painter = painterResource(R.drawable.outlined_cloud_upload),
+          contentDescription = "upload",
       )
       Text(
-        text = "Click to upload csv file",
-        style = TextStyle(
-          fontSize = Constants.mediumFontSize,
-          fontWeight = FontWeight.Normal,
-          fontFamily = Constants.customFont
-        )
+          text = "Click to upload csv file",
+          style =
+              TextStyle(
+                  fontSize = Constants.mediumFontSize,
+                  fontWeight = FontWeight.Normal,
+                  fontFamily = Constants.customFont,
+              ),
       )
     }
-
   }
 }
