@@ -1,6 +1,12 @@
 package com.manishjajoriya.transferlisten.presentation.homeScreen
 
+import android.content.Context
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,21 +16,39 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.manishjajoriya.transferlisten.R
 import com.manishjajoriya.transferlisten.utils.Constants
+import com.manishjajoriya.transferlisten.utils.CsvToList
+import com.manishjajoriya.transferlisten.utils.VolatileData
 
 @Composable
 fun HomeScreen(modifier: Modifier) {
+
+  val context: Context = LocalContext.current
+  var result by remember { mutableStateOf<Uri?>(null) }
+  val launcher =
+      rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
+        result = it
+        it?.let { uri ->
+          VolatileData.csvData = CsvToList(context, it)
+          println("Parsed CSV: ${VolatileData.csvData?.size}")
+        }
+      }
 
   Column(modifier = modifier.padding(start = 8.dp, end = 8.dp)) {
     Spacer(Modifier.height(Constants.largePadding).fillMaxWidth())
@@ -51,17 +75,26 @@ fun HomeScreen(modifier: Modifier) {
 
     Column(
         modifier =
-            Modifier.height(120.dp).fillMaxWidth().drawBehind {
-              val strokeWidth = 2.dp.toPx()
-              val cornerRadius = 20.dp.toPx()
-              val pathEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 20f), 0f)
-              drawRoundRect(
-                  color = Color.LightGray,
-                  style = Stroke(width = strokeWidth, pathEffect = pathEffect),
-                  cornerRadius =
-                      androidx.compose.ui.geometry.CornerRadius(cornerRadius, cornerRadius),
-              )
-            },
+            Modifier.height(120.dp)
+                .fillMaxWidth()
+                .drawBehind {
+                  val strokeWidth = 2.dp.toPx()
+                  val cornerRadius = 20.dp.toPx()
+                  val pathEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 20f), 0f)
+                  drawRoundRect(
+                      color = Color.LightGray,
+                      style = Stroke(width = strokeWidth, pathEffect = pathEffect),
+                      cornerRadius =
+                          androidx.compose.ui.geometry.CornerRadius(cornerRadius, cornerRadius),
+                  )
+                }
+                .clickable(
+                    onClick = {
+                      launcher.launch(arrayOf("*/*"))
+                      println("log $result")
+                      Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
+                    }
+                ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -71,7 +104,7 @@ fun HomeScreen(modifier: Modifier) {
           contentDescription = "upload",
       )
       Text(
-          text = "Click to upload csv file",
+          text = if (result != null) "file is uploaded" else "Click to upload csv file",
           style =
               TextStyle(
                   fontSize = Constants.mediumFontSize,
