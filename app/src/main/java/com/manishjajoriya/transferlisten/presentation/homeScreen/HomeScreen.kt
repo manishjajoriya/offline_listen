@@ -110,7 +110,7 @@ fun HomeScreen(modifier: Modifier) {
                 }
                 .clickable(
                     onClick = {
-                      launcher.launch(arrayOf("*/*"))
+                      launcher.launch(arrayOf("text/comma-separated-values"))
                       Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
                     }
                 ),
