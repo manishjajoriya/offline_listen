@@ -1,0 +1,28 @@
+package com.manishjajoriya.transferlisten.domain.model
+
+data class Csv(
+    val acousticness: Double,
+    val Added_At: String,
+    val Added_By: String,
+    val Album_Name: String,
+    val Artist_Name: List<String>,
+    val Danceability: Double,
+    val Duration: Int,
+    val Energy: Double,
+    val Explicit: Boolean,
+    val Genres: List<String>,
+    val Instrumentalness: Int,
+    val Key: Int,
+    val Liveness: Double,
+    val Loudness: Double,
+    val Mode: Int,
+    val Popularity: Int,
+    val Record_Label: String,
+    val Release_Date: String,
+    val Speechiness: Double,
+    val Tempo: Double,
+    val Time_Signature: Int,
+    val Track_Name: String,
+    val Track_URI: String,
+    val Valence: Double,
+)

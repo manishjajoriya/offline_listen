@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -32,6 +34,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.manishjajoriya.transferlisten.R
+import com.manishjajoriya.transferlisten.presentation.homeScreen.component.LeftPlaylistItem
 import com.manishjajoriya.transferlisten.utils.Constants
 import com.manishjajoriya.transferlisten.utils.CsvToList
 import com.manishjajoriya.transferlisten.utils.VolatileData
@@ -40,13 +43,16 @@ import com.manishjajoriya.transferlisten.utils.VolatileData
 fun HomeScreen(modifier: Modifier) {
 
   val context: Context = LocalContext.current
+  var csvData by remember { mutableStateOf(VolatileData.csvData) }
   var result by remember { mutableStateOf<Uri?>(null) }
   val launcher =
       rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
         result = it
         it?.let { uri ->
-          VolatileData.csvData = CsvToList(context, it)
-          println("Parsed CSV: ${VolatileData.csvData?.size}")
+          val data = CsvToList(context, it)
+          VolatileData.csvData = data
+          csvData = data
+          println("Parsed CSV: ${VolatileData.csvData[0]}")
         }
       }
 
@@ -69,6 +75,7 @@ fun HomeScreen(modifier: Modifier) {
                 fontSize = Constants.smallFontSize,
                 fontWeight = FontWeight.Light,
                 fontFamily = Constants.customFont,
+                color = Color.Gray,
             ),
     )
     Spacer(Modifier.height(Constants.mediumPadding))
@@ -84,8 +91,7 @@ fun HomeScreen(modifier: Modifier) {
                   drawRoundRect(
                       color = Color.LightGray,
                       style = Stroke(width = strokeWidth, pathEffect = pathEffect),
-                      cornerRadius =
-                          androidx.compose.ui.geometry.CornerRadius(cornerRadius, cornerRadius),
+                      cornerRadius = CornerRadius(cornerRadius, cornerRadius),
                   )
                 }
                 .clickable(
@@ -112,6 +118,12 @@ fun HomeScreen(modifier: Modifier) {
                   fontFamily = Constants.customFont,
               ),
       )
+    }
+    LazyColumn {
+      items(csvData.size) { index ->
+        LeftPlaylistItem(csvData[index], Modifier.fillMaxWidth(.5f))
+        Spacer(Modifier.height(Constants.smallPadding))
+      }
     }
   }
 }

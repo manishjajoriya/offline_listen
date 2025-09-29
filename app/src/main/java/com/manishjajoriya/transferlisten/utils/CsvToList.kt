@@ -2,11 +2,12 @@ package com.manishjajoriya.transferlisten.utils
 
 import android.content.Context
 import android.net.Uri
+import com.manishjajoriya.transferlisten.domain.model.Csv
 import java.io.BufferedReader
 
 object CsvToList {
 
-  operator fun invoke(context: Context, uri: Uri): List<Map<String, Any?>> {
+  operator fun invoke(context: Context, uri: Uri): List<Csv> {
     val csvContent = readCsvFromUri(context, uri)
     if (csvContent.isEmpty()) return emptyList()
 
@@ -15,28 +16,42 @@ object CsvToList {
     // First row = headers
     val headers = parseCSVLine(lines[0]).map { it.replace("\\s+".toRegex(), "_") }
 
-    // Remaining rows = data
-    val jsonData =
-        lines.drop(1).map { line ->
-          val values = parseCSVLine(line).toMutableList()
-          val obj = mutableMapOf<String, Any?>()
+    return lines.drop(1).mapNotNull { line ->
+      val values = parseCSVLine(line)
+      try {
+        val map = headers.zip(values).toMap()
 
-          headers.forEachIndexed { index, header ->
-            var key = header
-            var value: Any? = values.getOrNull(index)
-
-            if (key == "Artist_Name(s)" && value is String) {
-              value = value.split(";").map { it.trim() }
-              key = "Artist_Name"
-            }
-
-            obj[key] = value
-          }
-
-          obj
-        }
-
-    return jsonData
+        Csv(
+            Track_URI = map["Track_URI"] ?: "",
+            Track_Name = map["Track_Name"] ?: "",
+            Album_Name = map["Album_Name"] ?: "",
+            Artist_Name = map["Artist_Name(s)"]?.split(";")?.map { it.trim() } ?: emptyList(),
+            Release_Date = map["Release_Date"] ?: "",
+            Duration = map["Duration_(ms)"]?.toIntOrNull() ?: 0,
+            Popularity = map["Popularity"]?.toIntOrNull() ?: 0,
+            Explicit = map["Explicit"]?.toBoolean() ?: false,
+            Added_By = map["Added_By"] ?: "",
+            Added_At = map["Added_At"] ?: "",
+            Genres = map["Genres"]?.split(",")?.map { it.trim() } ?: emptyList(),
+            Record_Label = map["Record_Label"] ?: "",
+            Danceability = map["Danceability"]?.toDoubleOrNull() ?: 0.0,
+            Energy = map["Energy"]?.toDoubleOrNull() ?: 0.0,
+            Key = map["Key"]?.toIntOrNull() ?: 0,
+            Loudness = map["Loudness"]?.toDoubleOrNull() ?: 0.0,
+            Mode = map["Mode"]?.toIntOrNull() ?: 0,
+            Speechiness = map["Speechiness"]?.toDoubleOrNull() ?: 0.0,
+            acousticness = map["Acousticness"]?.toDoubleOrNull() ?: 0.0,
+            Instrumentalness = map["Instrumentalness"]?.toIntOrNull() ?: 0,
+            Liveness = map["Liveness"]?.toDoubleOrNull() ?: 0.0,
+            Valence = map["Valence"]?.toDoubleOrNull() ?: 0.0,
+            Tempo = map["Tempo"]?.toDoubleOrNull() ?: 0.0,
+            Time_Signature = map["Time_Signature"]?.toIntOrNull() ?: 0,
+        )
+      } catch (e: Exception) {
+        e.printStackTrace()
+        null
+      }
+    }
   }
 
   private fun readCsvFromUri(context: Context, uri: Uri): String {
