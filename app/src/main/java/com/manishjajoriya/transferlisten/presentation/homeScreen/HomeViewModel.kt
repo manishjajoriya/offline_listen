@@ -27,14 +27,12 @@ class HomeViewModel @Inject constructor(private val musicApiUseCase: MusicApiUse
   var loading by mutableStateOf(false)
 
   fun searchPlaylist(csvList: List<Csv>) {
-    currentIndex = -1
     loading = true
-    error = null
     viewModelScope.launch {
       try {
         val results = mutableListOf<Track>()
         for ((index, csv) in csvList.withIndex()) {
-          currentIndex = index
+          currentIndex++
           val query = "${csv.Track_Name} ${csv.Artist_Name[0]}"
           val track =
               runCatching {
