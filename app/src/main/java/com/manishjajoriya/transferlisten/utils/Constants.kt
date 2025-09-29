@@ -9,7 +9,7 @@ import com.manishjajoriya.transferlisten.R
 
 object Constants {
 
-  val baseURL = "https://dab.yeet.su/api/"
+  const val BASE_URL = "https://dab.yeet.su/api/"
 
   // Padding
   val extraSmallPadding = 4.dp
@@ -39,4 +39,7 @@ object Constants {
           Font(R.font.roboto_semi_condensed_extrabold, FontWeight.ExtraBold),
           Font(R.font.roboto_semi_condensed_black, FontWeight.Black),
       )
+
+  // App folder name
+  const val APP_DEFAULT_FOLDER_NAME = "transfer-listen"
 }

@@ -1,9 +1,13 @@
 package com.manishjajoriya.transferlisten
 
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -14,7 +18,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.manishjajoriya.transferlisten.presentation.homeScreen.HomeScreen
+import com.manishjajoriya.transferlisten.presentation.homeScreen.HomeViewModel
 import com.manishjajoriya.transferlisten.ui.theme.Pink
 import com.manishjajoriya.transferlisten.ui.theme.TransferListenTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,6 +30,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    val homeViewModel: HomeViewModel by viewModels()
     enableEdgeToEdge()
     setContent {
       TransferListenTheme {
@@ -31,7 +39,10 @@ class MainActivity : ComponentActivity() {
             floatingActionButton = {
               FloatingActionButton(
                   modifier = Modifier.padding(bottom = 40.dp, end = 32.dp).size(64.dp),
-                  onClick = {},
+                  onClick = {
+                    askNotificationPermission(this)
+                    homeViewModel.streamPlaylist()
+                  },
                   containerColor = Pink,
                   shape = CircleShape,
                   content = {
@@ -47,6 +58,21 @@ class MainActivity : ComponentActivity() {
           HomeScreen(modifier = Modifier.padding(innerPadding))
         }
       }
+    }
+  }
+}
+
+fun askNotificationPermission(activity: Activity) {
+  if (
+      ContextCompat.checkSelfPermission(activity, android.Manifest.permission.POST_NOTIFICATIONS) !=
+          PackageManager.PERMISSION_GRANTED
+  ) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      ActivityCompat.requestPermissions(
+          activity,
+          arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+          1,
+      )
     }
   }
 }

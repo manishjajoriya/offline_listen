@@ -60,6 +60,7 @@ fun HomeScreen(modifier: Modifier) {
   val launcher =
       rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
         it?.let { uri ->
+          homeViewModel.createDirectory()
           fileUri = uri
           fileName = getFileNameFromUri(uri, context)
           val data = CsvToList(context, uri)
@@ -134,22 +135,7 @@ fun HomeScreen(modifier: Modifier) {
     }
     Spacer(Modifier.height(Constants.mediumPadding))
     Box(modifier = Modifier.fillMaxSize()) {
-      if (csvList.isNotEmpty() && homeViewModel.fetchPlaylistData.isNotEmpty()) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(Constants.mediumPadding),
-        ) {
-          items(csvList.size) { index ->
-            Row {
-              LeftPlaylistItem(csvList[index], Modifier.weight(.45f))
-              Spacer(Modifier.width(Constants.smallPadding))
-              RightPlaylistItem(homeViewModel.fetchPlaylistData[index], Modifier.weight(.45f))
-            }
-          }
-        }
-      }
-
-      if (homeViewModel.loading) {
+      if (homeViewModel.searchLoading) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -161,8 +147,36 @@ fun HomeScreen(modifier: Modifier) {
               trackColor = Color.White,
           )
           Text(
-              text = "${homeViewModel.currentIndex + 1}/${csvList.size}",
+              text = "${homeViewModel.currentFetchIndex + 1}/${csvList.size}",
           )
+        }
+      } else if (homeViewModel.streamLoading) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+          CircularProgressIndicator(
+              modifier = Modifier.size(48.dp),
+              color = Pink,
+              trackColor = Color.White,
+          )
+          Text(
+              text = "${homeViewModel.currentStremIndex + 1}/${csvList.size}",
+          )
+        }
+      } else if (csvList.isNotEmpty() && homeViewModel.fetchPlaylistData.isNotEmpty()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(Constants.mediumPadding),
+        ) {
+          items(csvList.size) { index ->
+            Row {
+              LeftPlaylistItem(csvList[index], Modifier.weight(.45f))
+              Spacer(Modifier.width(Constants.smallPadding))
+              RightPlaylistItem(homeViewModel.fetchPlaylistData[index], Modifier.weight(.45f))
+            }
+          }
         }
       }
     }

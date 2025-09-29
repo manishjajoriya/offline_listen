@@ -38,6 +38,7 @@ dependencies {
   val daggerHiltVersion = "2.57.2"
   val coilVersion = "3.3.0"
   val viewmodelVersion = "2.9.4"
+  val ketchVersion = "2.0.5"
 
   implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
   implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
@@ -46,6 +47,7 @@ dependencies {
   implementation("io.coil-kt.coil3:coil-compose:$coilVersion")
   implementation("io.coil-kt.coil3:coil-network-okhttp:$coilVersion")
   implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$viewmodelVersion")
+  implementation("com.github.khushpanchal:Ketch:$ketchVersion")
 
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.lifecycle.runtime.ktx)
