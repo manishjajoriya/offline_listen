@@ -2,19 +2,25 @@ package com.manishjajoriya.transferlisten.presentation.homeScreen
 
 import android.content.Context
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,8 +39,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.manishjajoriya.transferlisten.R
 import com.manishjajoriya.transferlisten.presentation.homeScreen.component.LeftPlaylistItem
+import com.manishjajoriya.transferlisten.presentation.homeScreen.component.RightPlaylistItem
+import com.manishjajoriya.transferlisten.ui.theme.Pink
 import com.manishjajoriya.transferlisten.utils.Constants
 import com.manishjajoriya.transferlisten.utils.CsvToList
 import com.manishjajoriya.transferlisten.utils.VolatileData
@@ -43,16 +52,21 @@ import com.manishjajoriya.transferlisten.utils.VolatileData
 fun HomeScreen(modifier: Modifier) {
 
   val context: Context = LocalContext.current
-  var csvData by remember { mutableStateOf(VolatileData.csvData) }
-  var result by remember { mutableStateOf<Uri?>(null) }
+  val homeViewModel: HomeViewModel = viewModel()
+  var csvList by remember { mutableStateOf(VolatileData.csvData) }
+  var fileUri by remember { mutableStateOf<Uri?>(null) }
+  var fileName by remember { mutableStateOf<String?>(null) }
+
   val launcher =
       rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
-        result = it
         it?.let { uri ->
-          val data = CsvToList(context, it)
+          fileUri = uri
+          fileName = getFileNameFromUri(uri, context)
+          val data = CsvToList(context, uri)
           VolatileData.csvData = data
-          csvData = data
-          println("Parsed CSV: ${VolatileData.csvData[0]}")
+          csvList = data
+          homeViewModel.reset()
+          homeViewModel.searchPlaylist(csvList)
         }
       }
 
@@ -97,7 +111,6 @@ fun HomeScreen(modifier: Modifier) {
                 .clickable(
                     onClick = {
                       launcher.launch(arrayOf("*/*"))
-                      println("log $result")
                       Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
                     }
                 ),
@@ -110,7 +123,7 @@ fun HomeScreen(modifier: Modifier) {
           contentDescription = "upload",
       )
       Text(
-          text = if (result != null) "file is uploaded" else "Click to upload csv file",
+          text = if (fileUri != null) "file uploaded : $fileName" else "Click to upload csv file",
           style =
               TextStyle(
                   fontSize = Constants.mediumFontSize,
@@ -119,11 +132,52 @@ fun HomeScreen(modifier: Modifier) {
               ),
       )
     }
-    LazyColumn {
-      items(csvData.size) { index ->
-        LeftPlaylistItem(csvData[index], Modifier.fillMaxWidth(.5f))
-        Spacer(Modifier.height(Constants.smallPadding))
+    Spacer(Modifier.height(Constants.mediumPadding))
+    Box(modifier = Modifier.fillMaxSize()) {
+      if (csvList.isNotEmpty() && homeViewModel.fetchPlaylistData.isNotEmpty()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(Constants.mediumPadding),
+        ) {
+          items(csvList.size) { index ->
+            Row {
+              LeftPlaylistItem(csvList[index], Modifier.weight(.45f))
+              Spacer(Modifier.width(Constants.smallPadding))
+              RightPlaylistItem(homeViewModel.fetchPlaylistData[index], Modifier.weight(.45f))
+            }
+          }
+        }
+      }
+
+      if (homeViewModel.loading) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+          CircularProgressIndicator(
+              modifier = Modifier.size(48.dp),
+              color = Pink,
+              trackColor = Color.White,
+          )
+          Text(
+              text = "${homeViewModel.currentIndex + 1}/${csvList.size}",
+          )
+        }
       }
     }
   }
+}
+
+fun getFileNameFromUri(fileUri: Uri, context: Context): String? {
+  val cursor = context.contentResolver.query(fileUri, null, null, null, null, null)
+  cursor?.use { it ->
+    if (it.moveToFirst()) {
+      val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+      if (index != -1) {
+        return it.getString(index)
+      }
+    }
+  }
+  return null
 }

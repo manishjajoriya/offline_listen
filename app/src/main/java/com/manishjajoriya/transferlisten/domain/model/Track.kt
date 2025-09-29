@@ -1,0 +1,32 @@
+package com.manishjajoriya.transferlisten.domain.model
+
+data class Track(
+  val albumCover: String,
+  val albumId: String,
+  val albumTitle: String,
+  val artist: String,
+  val artistId: Int,
+  val audioQuality: AudioQuality,
+  val duration: Int,
+  val genre: String,
+  val genreColor: String,
+  val genreId: Int,
+  val genreSlug: String,
+  val id: Int,
+  val images: Images,
+  val isrc: String,
+  val label: String,
+  val labelId: Int,
+  val maximumChannelCount: Int,
+  val mediaCount: Int,
+  val parental_warning: Boolean,
+  val previewable: Boolean,
+  val purchasable: Boolean,
+  val releaseDate: String,
+  val releaseDateDownload: String,
+  val releaseDateStream: String,
+  val streamable: Boolean,
+  val title: String,
+  val upc: String,
+  val version: String
+)

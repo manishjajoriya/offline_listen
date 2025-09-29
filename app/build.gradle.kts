@@ -2,6 +2,8 @@ plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.android)
   alias(libs.plugins.kotlin.compose)
+  id("com.google.devtools.ksp")
+  id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -21,25 +23,29 @@ android {
   buildTypes {
     release {
       isMinifyEnabled = false
-      proguardFiles(
-        getDefaultProguardFile("proguard-android-optimize.txt"),
-        "proguard-rules.pro"
-      )
+      proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
   }
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
   }
-  kotlinOptions {
-    jvmTarget = "11"
-  }
-  buildFeatures {
-    compose = true
-  }
+  buildFeatures { compose = true }
 }
 
 dependencies {
+  val retrofitVersion = "3.0.0"
+  val daggerHiltVersion = "2.57.2"
+  val coilVersion = "3.3.0"
+  val viewmodelVersion = "2.9.4"
+
+  implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
+  implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
+  implementation("com.google.dagger:hilt-android:$daggerHiltVersion")
+  ksp("com.google.dagger:hilt-android-compiler:$daggerHiltVersion")
+  implementation("io.coil-kt.coil3:coil-compose:$coilVersion")
+  implementation("io.coil-kt.coil3:coil-network-okhttp:$coilVersion")
+  implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$viewmodelVersion")
 
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.lifecycle.runtime.ktx)
