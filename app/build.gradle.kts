@@ -39,6 +39,7 @@ dependencies {
   val coilVersion = "3.3.0"
   val viewmodelVersion = "2.9.4"
   val ketchVersion = "2.0.5"
+  val splashScreen = "1.0.1"
 
   implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
   implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
@@ -48,6 +49,7 @@ dependencies {
   implementation("io.coil-kt.coil3:coil-network-okhttp:$coilVersion")
   implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$viewmodelVersion")
   implementation("com.github.khushpanchal:Ketch:$ketchVersion")
+  implementation("androidx.core:core-splashscreen:$splashScreen")
 
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.lifecycle.runtime.ktx)

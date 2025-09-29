@@ -1,7 +1,6 @@
 package com.manishjajoriya.transferlisten.presentation.homeScreen
 
 import android.os.Environment
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -90,7 +89,6 @@ constructor(private val musicApiUseCase: MusicApiUseCase, private val ketch: Ket
         val stream =
             runCatching {
                   if (index != 0) delay(1000)
-                  Log.e("Log", track.id.toString())
                   musicApiUseCase.streamUseCase(track.id, quality = 5)
                 }
                 .getOrElse {
@@ -145,15 +143,12 @@ constructor(private val musicApiUseCase: MusicApiUseCase, private val ketch: Ket
     try {
       for ((index, stream) in streamPlaylistData.withIndex()) {
         currentDownloadIndex++
-        val id =
-            ketch.download(
-                tag = "audio",
-                url = stream.url,
-                fileName = "${fetchPlaylistData[index].isrc}.mp3",
-                path = playlistPath,
-            )
-
-        Log.i("Log", "download ${fetchPlaylistData[index].title}")
+        ketch.download(
+            tag = "audio",
+            url = stream.url,
+            fileName = "${fetchPlaylistData[index].isrc}.mp3",
+            path = playlistPath,
+        )
       }
     } catch (e: Exception) {
       error = e
