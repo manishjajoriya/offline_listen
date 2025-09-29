@@ -24,6 +24,8 @@ import kotlinx.coroutines.launch
 class HomeViewModel
 @Inject
 constructor(private val musicApiUseCase: MusicApiUseCase, private val ketch: Ketch) : ViewModel() {
+
+  var fileName by mutableStateOf("")
   var fetchPlaylistData by mutableStateOf<List<Track>>(emptyList())
     private set
 
@@ -33,11 +35,23 @@ constructor(private val musicApiUseCase: MusicApiUseCase, private val ketch: Ket
   var currentFetchIndex by mutableIntStateOf(-1)
     private set
 
-  var currentStremIndex by mutableStateOf(-1)
+  var currentStreamIndex by mutableIntStateOf(-1)
+    private set
+
+  var currentDownloadIndex by mutableIntStateOf(-1)
+    private set
 
   var error by mutableStateOf<Exception?>(null)
+    private set
+
   var searchLoading by mutableStateOf(false)
+    private set
+
   var streamLoading by mutableStateOf(false)
+    private set
+
+  var downloadLoading by mutableStateOf(false)
+    private set
 
   fun searchPlaylist(csvList: List<Csv>) {
     searchLoading = true
@@ -67,31 +81,30 @@ constructor(private val musicApiUseCase: MusicApiUseCase, private val ketch: Ket
     }
   }
 
-  fun streamPlaylist() {
+  suspend fun streamPlaylist() {
     streamLoading = true
-    viewModelScope.launch {
-      try {
-        val results = mutableListOf<Stream>()
-        for ((index, track) in fetchPlaylistData.withIndex()) {
-          currentStremIndex++
-          val stream =
-              runCatching {
-                    if (index != 0) delay(1000)
-                    Log.e("Log", track.id.toString())
-                    musicApiUseCase.streamUseCase(track.id, quality = 5)
-                  }
-                  .getOrElse {
-                    delay(1000)
-                    musicApiUseCase.streamUseCase(track.id, quality = 5)
-                  }
-          results.add(stream)
-        }
-        streamPlaylistData = results.toList()
-      } catch (e: Exception) {
-        error = e
-      } finally {
-        streamLoading = false
+    try {
+      val results = mutableListOf<Stream>()
+      for ((index, track) in fetchPlaylistData.withIndex()) {
+        currentStreamIndex++
+        val stream =
+            runCatching {
+                  if (index != 0) delay(1000)
+                  Log.e("Log", track.id.toString())
+                  musicApiUseCase.streamUseCase(track.id, quality = 5)
+                }
+                .getOrElse {
+                  delay(1000)
+                  musicApiUseCase.streamUseCase(track.id, quality = 5)
+                }
+        results.add(stream)
       }
+      streamPlaylistData = results.toList()
+    } catch (e: Exception) {
+      error = e
+    } finally {
+      streamLoading = false
+      currentStreamIndex = -1
     }
   }
 
@@ -99,18 +112,54 @@ constructor(private val musicApiUseCase: MusicApiUseCase, private val ketch: Ket
     fetchPlaylistData = emptyList()
     streamPlaylistData = emptyList()
     currentFetchIndex = -1
-    currentStremIndex = -1
+    currentStreamIndex = -1
+    currentDownloadIndex = -1
     error = null
     searchLoading = false
     streamLoading = false
+    downloadLoading = false
   }
 
-  fun createDirectory() {
-    val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
-    val letDir = File(path, Constants.APP_DEFAULT_FOLDER_NAME)
+  fun createDirectory(
+      parentDirectoryName: String =
+          Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path,
+      childDirectoryName: String,
+  ): String {
+    val letDir = File(parentDirectoryName, childDirectoryName)
 
     if (!letDir.exists()) {
       letDir.mkdirs()
+    }
+    return letDir.path
+  }
+
+  fun downloadSongFromStreamPlaylist() {
+    downloadLoading = true
+    val playlistName = File(fileName).nameWithoutExtension
+    val downloadPath =
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path +
+            "/${Constants.APP_DEFAULT_FOLDER_NAME}"
+
+    val playlistPath =
+        createDirectory(parentDirectoryName = downloadPath, childDirectoryName = playlistName)
+    try {
+      for ((index, stream) in streamPlaylistData.withIndex()) {
+        currentDownloadIndex++
+        val id =
+            ketch.download(
+                tag = "audio",
+                url = stream.url,
+                fileName = "${fetchPlaylistData[index].isrc}.mp3",
+                path = playlistPath,
+            )
+
+        Log.i("Log", "download ${fetchPlaylistData[index].title}")
+      }
+    } catch (e: Exception) {
+      error = e
+    } finally {
+      downloadLoading = false
+      currentDownloadIndex = -1
     }
   }
 }

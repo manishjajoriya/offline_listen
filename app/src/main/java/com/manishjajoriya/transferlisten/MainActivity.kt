@@ -20,11 +20,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewModelScope
 import com.manishjajoriya.transferlisten.presentation.homeScreen.HomeScreen
 import com.manishjajoriya.transferlisten.presentation.homeScreen.HomeViewModel
 import com.manishjajoriya.transferlisten.ui.theme.Pink
 import com.manishjajoriya.transferlisten.ui.theme.TransferListenTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -41,7 +43,10 @@ class MainActivity : ComponentActivity() {
                   modifier = Modifier.padding(bottom = 40.dp, end = 32.dp).size(64.dp),
                   onClick = {
                     askNotificationPermission(this)
-                    homeViewModel.streamPlaylist()
+                    homeViewModel.viewModelScope.launch {
+                      homeViewModel.streamPlaylist()
+                      homeViewModel.downloadSongFromStreamPlaylist()
+                    }
                   },
                   containerColor = Pink,
                   shape = CircleShape,

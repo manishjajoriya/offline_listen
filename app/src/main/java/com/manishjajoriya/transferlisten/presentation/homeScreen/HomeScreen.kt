@@ -47,6 +47,7 @@ import com.manishjajoriya.transferlisten.ui.theme.Pink
 import com.manishjajoriya.transferlisten.utils.Constants
 import com.manishjajoriya.transferlisten.utils.CsvToList
 import com.manishjajoriya.transferlisten.utils.VolatileData
+import java.time.LocalDateTime
 
 @Composable
 fun HomeScreen(modifier: Modifier) {
@@ -60,9 +61,9 @@ fun HomeScreen(modifier: Modifier) {
   val launcher =
       rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
         it?.let { uri ->
-          homeViewModel.createDirectory()
           fileUri = uri
           fileName = getFileNameFromUri(uri, context)
+          homeViewModel.fileName = fileName.toString()
           val data = CsvToList(context, uri)
           VolatileData.csvData = data
           csvList = data
@@ -162,7 +163,7 @@ fun HomeScreen(modifier: Modifier) {
               trackColor = Color.White,
           )
           Text(
-              text = "${homeViewModel.currentStremIndex + 1}/${csvList.size}",
+              text = "${homeViewModel.currentStreamIndex + 1}/${csvList.size}",
           )
         }
       } else if (csvList.isNotEmpty() && homeViewModel.fetchPlaylistData.isNotEmpty()) {
@@ -183,7 +184,7 @@ fun HomeScreen(modifier: Modifier) {
   }
 }
 
-fun getFileNameFromUri(fileUri: Uri, context: Context): String? {
+fun getFileNameFromUri(fileUri: Uri, context: Context): String {
   val cursor = context.contentResolver.query(fileUri, null, null, null, null, null)
   cursor?.use { it ->
     if (it.moveToFirst()) {
@@ -193,5 +194,5 @@ fun getFileNameFromUri(fileUri: Uri, context: Context): String? {
       }
     }
   }
-  return null
+  return "MyPlaylist_${LocalDateTime.now()}"
 }
