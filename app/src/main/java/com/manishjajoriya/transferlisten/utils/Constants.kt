@@ -41,5 +41,5 @@ object Constants {
       )
 
   // App folder name
-  const val APP_DEFAULT_FOLDER_NAME = "transfer-listen"
+  const val APP_DEFAULT_FOLDER_NAME = "TransferListen"
 }

@@ -5,18 +5,20 @@ import com.ketch.DownloadConfig
 import com.ketch.Ketch
 import com.ketch.NotificationConfig
 import com.manishjajoriya.transferlisten.R
+import com.manishjajoriya.transferlisten.data.local.FileDownloader
 import com.manishjajoriya.transferlisten.data.remote.MusicApi
-import com.manishjajoriya.transferlisten.domain.usecase.MusicApiUseCase
-import com.manishjajoriya.transferlisten.domain.usecase.SearchUseCase
-import com.manishjajoriya.transferlisten.domain.usecase.StreamUseCase
+import com.manishjajoriya.transferlisten.domain.usecase.api.MusicApiUseCase
+import com.manishjajoriya.transferlisten.domain.usecase.api.SearchUseCase
+import com.manishjajoriya.transferlisten.domain.usecase.api.StreamUseCase
+import com.manishjajoriya.transferlisten.domain.usecase.local.DownloadSongUseCase
 import com.manishjajoriya.transferlisten.utils.Constants
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -48,4 +50,11 @@ object Module {
           )
           .setDownloadConfig(DownloadConfig(connectTimeOutInMs = 15000, readTimeOutInMs = 15000))
           .build(application)
+
+  @Provides @Singleton fun provideFileDownloader(ketch: Ketch) = FileDownloader(ketch)
+
+  @Provides
+  @Singleton
+  fun provideDownloadSongUseCase(fileDownloader: FileDownloader) =
+      DownloadSongUseCase(fileDownloader)
 }

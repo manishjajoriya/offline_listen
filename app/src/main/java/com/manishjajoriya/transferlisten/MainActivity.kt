@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
                     askNotificationPermission(this)
                     homeViewModel.viewModelScope.launch {
                       homeViewModel.streamPlaylist()
-                      homeViewModel.downloadSongFromStreamPlaylist()
+                      homeViewModel.downloadPlaylist()
                     }
                   },
                   containerColor = Pink,

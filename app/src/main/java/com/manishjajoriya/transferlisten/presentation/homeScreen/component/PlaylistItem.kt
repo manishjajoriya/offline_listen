@@ -1,5 +1,6 @@
 package com.manishjajoriya.transferlisten.presentation.homeScreen.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,11 +12,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.manishjajoriya.transferlisten.R
 import com.manishjajoriya.transferlisten.domain.model.Csv
 import com.manishjajoriya.transferlisten.domain.model.Track
 import com.manishjajoriya.transferlisten.ui.theme.Gray
@@ -56,26 +60,35 @@ fun LeftPlaylistItem(data: Csv, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun RightPlaylistItem(track: Track, modifier: Modifier = Modifier) {
+fun RightPlaylistItem(track: Track?, modifier: Modifier = Modifier) {
   Row(
       modifier =
           modifier
               .height(68.dp)
               .background(Gray, RoundedCornerShape(8.dp))
-              .padding(horizontal = Constants.smallPadding, vertical = Constants.mediumPadding)
+              .padding(horizontal = Constants.smallPadding, vertical = Constants.mediumPadding),
+      verticalAlignment = Alignment.CenterVertically,
   ) {
-    AsyncImage(
-        modifier = Modifier.size(52.dp),
-        model = track.images.small,
-        contentDescription = "${track.title} cover art",
-    )
+    if (track != null) {
+      AsyncImage(
+          modifier = Modifier.size(52.dp),
+          model = track.images.small,
+          contentDescription = "${track.title} image",
+      )
+    } else {
+      Image(
+          painterResource(R.drawable.no_image_svgrepo_com),
+          contentDescription = "No image",
+          modifier = Modifier.size(52.dp),
+      )
+    }
 
     Column(
         modifier = Modifier.padding(start = Constants.extraSmallPadding),
         verticalArrangement = Arrangement.Center,
     ) {
       Text(
-          text = track.title,
+          text = track?.title ?: "No title",
           style =
               TextStyle(
                   fontSize = Constants.smallFontSize,
@@ -86,7 +99,7 @@ fun RightPlaylistItem(track: Track, modifier: Modifier = Modifier) {
       )
       Spacer(Modifier.height(Constants.extraSmallPadding))
       Text(
-          text = track.artist,
+          text = track?.artist ?: "No artist",
           style =
               TextStyle(
                   fontSize = Constants.extraSmallFontSize,

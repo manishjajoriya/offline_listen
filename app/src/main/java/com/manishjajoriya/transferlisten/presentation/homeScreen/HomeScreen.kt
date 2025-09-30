@@ -45,8 +45,6 @@ import com.manishjajoriya.transferlisten.presentation.homeScreen.component.LeftP
 import com.manishjajoriya.transferlisten.presentation.homeScreen.component.RightPlaylistItem
 import com.manishjajoriya.transferlisten.ui.theme.Pink
 import com.manishjajoriya.transferlisten.utils.Constants
-import com.manishjajoriya.transferlisten.utils.CsvToList
-import com.manishjajoriya.transferlisten.utils.VolatileData
 import java.time.LocalDateTime
 
 @Composable
@@ -54,21 +52,16 @@ fun HomeScreen(modifier: Modifier) {
 
   val context: Context = LocalContext.current
   val homeViewModel: HomeViewModel = viewModel()
-  var csvList by remember { mutableStateOf(VolatileData.csvData) }
-  var fileUri by remember { mutableStateOf<Uri?>(null) }
-  var fileName by remember { mutableStateOf<String?>(null) }
+  var fileName by remember { mutableStateOf("") }
 
   val launcher =
       rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
         it?.let { uri ->
-          fileUri = uri
           fileName = getFileNameFromUri(uri, context)
-          homeViewModel.fileName = fileName.toString()
-          val data = CsvToList(context, uri)
-          VolatileData.csvData = data
-          csvList = data
+          homeViewModel.fileName = fileName
+          homeViewModel.csvToListConverter(context, uri)
           homeViewModel.reset()
-          homeViewModel.searchPlaylist(csvList)
+          homeViewModel.searchPlaylist()
         }
       }
 
@@ -125,7 +118,9 @@ fun HomeScreen(modifier: Modifier) {
           contentDescription = "upload",
       )
       Text(
-          text = if (fileUri != null) "file uploaded : $fileName" else "Click to upload csv file",
+          text =
+              if (fileName.isNotBlank()) "file uploaded : $fileName"
+              else "Click to upload csv file",
           style =
               TextStyle(
                   fontSize = Constants.mediumFontSize,
@@ -148,7 +143,7 @@ fun HomeScreen(modifier: Modifier) {
               trackColor = Color.White,
           )
           Text(
-              text = "${homeViewModel.currentFetchIndex + 1}/${csvList.size}",
+              text = "${homeViewModel.currentSearchIndex + 1}/${homeViewModel.csvList.size}",
           )
         }
       } else if (homeViewModel.streamLoading) {
@@ -163,19 +158,19 @@ fun HomeScreen(modifier: Modifier) {
               trackColor = Color.White,
           )
           Text(
-              text = "${homeViewModel.currentStreamIndex + 1}/${csvList.size}",
+              text = "${homeViewModel.currentStreamIndex + 1}/${homeViewModel.csvList.size}",
           )
         }
-      } else if (csvList.isNotEmpty() && homeViewModel.fetchPlaylistData.isNotEmpty()) {
+      } else if (homeViewModel.csvList.isNotEmpty() && homeViewModel.searchList.isNotEmpty()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(Constants.mediumPadding),
         ) {
-          items(csvList.size) { index ->
+          items(homeViewModel.csvList.size) { index ->
             Row {
-              LeftPlaylistItem(csvList[index], Modifier.weight(.45f))
+              LeftPlaylistItem(homeViewModel.csvList[index], Modifier.weight(.45f))
               Spacer(Modifier.width(Constants.smallPadding))
-              RightPlaylistItem(homeViewModel.fetchPlaylistData[index], Modifier.weight(.45f))
+              RightPlaylistItem(homeViewModel.searchList[index], Modifier.weight(.45f))
             }
           }
         }

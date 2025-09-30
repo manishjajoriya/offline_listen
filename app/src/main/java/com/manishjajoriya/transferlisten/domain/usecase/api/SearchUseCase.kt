@@ -1,4 +1,4 @@
-package com.manishjajoriya.transferlisten.domain.usecase
+package com.manishjajoriya.transferlisten.domain.usecase.api
 
 import com.manishjajoriya.transferlisten.data.remote.MusicApi
 import com.manishjajoriya.transferlisten.domain.model.Track

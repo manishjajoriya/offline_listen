@@ -1,46 +1,42 @@
 package com.manishjajoriya.transferlisten.presentation.homeScreen
 
-import android.os.Environment
+import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ketch.Ketch
 import com.manishjajoriya.transferlisten.domain.model.Csv
-import com.manishjajoriya.transferlisten.domain.model.Stream
 import com.manishjajoriya.transferlisten.domain.model.Track
-import com.manishjajoriya.transferlisten.domain.usecase.MusicApiUseCase
-import com.manishjajoriya.transferlisten.utils.Constants
+import com.manishjajoriya.transferlisten.domain.usecase.api.MusicApiUseCase
+import com.manishjajoriya.transferlisten.domain.usecase.local.DownloadSongUseCase
+import com.manishjajoriya.transferlisten.utils.CsvToList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
-import java.io.File
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class HomeViewModel
 @Inject
-constructor(private val musicApiUseCase: MusicApiUseCase, private val ketch: Ketch) : ViewModel() {
+constructor(
+    private val musicApiUseCase: MusicApiUseCase,
+    private val downloadSongUseCase: DownloadSongUseCase,
+) : ViewModel() {
 
   var fileName by mutableStateOf("")
-  var fetchPlaylistData by mutableStateOf<List<Track>>(emptyList())
+  var searchList by mutableStateOf<List<Track?>>(emptyList())
     private set
 
-  var streamPlaylistData by mutableStateOf<List<Stream>>(emptyList())
+  var streamList by mutableStateOf<List<String?>>(emptyList())
     private set
 
-  var currentFetchIndex by mutableIntStateOf(-1)
+  var currentSearchIndex by mutableIntStateOf(-1)
     private set
 
   var currentStreamIndex by mutableIntStateOf(-1)
-    private set
-
-  var currentDownloadIndex by mutableIntStateOf(-1)
-    private set
-
-  var error by mutableStateOf<Exception?>(null)
     private set
 
   var searchLoading by mutableStateOf(false)
@@ -49,112 +45,81 @@ constructor(private val musicApiUseCase: MusicApiUseCase, private val ketch: Ket
   var streamLoading by mutableStateOf(false)
     private set
 
-  var downloadLoading by mutableStateOf(false)
+  var csvList by mutableStateOf<List<Csv>>(emptyList())
     private set
 
-  fun searchPlaylist(csvList: List<Csv>) {
+  var error by mutableStateOf<Exception?>(null)
+    private set
+
+  fun csvToListConverter(context: Context, uri: Uri) {
+    csvList = CsvToList(context, uri)
+  }
+
+  fun searchPlaylist() {
     searchLoading = true
+    val results = mutableListOf<Track?>()
     viewModelScope.launch {
-      try {
-        val results = mutableListOf<Track>()
-        for ((index, csv) in csvList.withIndex()) {
-          currentFetchIndex++
-          val query = "${csv.Track_Name} ${csv.Artist_Name[0]}"
-          val track =
-              runCatching {
-                    if (index != 0) delay(1000)
+      for ((index, csv) in csvList.withIndex()) {
+        if (index != 0) delay(1000)
+        currentSearchIndex++
+        val query = "${csv.Track_Name} ${csv.Artist_Name[0]}"
+        val track =
+            runCatching { musicApiUseCase.searchUseCase(query) }
+                .getOrElse {
+                  delay(2000)
+                  try {
                     musicApiUseCase.searchUseCase(query)
+                  } catch (e: Exception) {
+                    error = e
+                    null
                   }
-                  .getOrElse {
-                    delay(1000)
-                    musicApiUseCase.searchUseCase(query)
-                  }
-          results.add(track)
-        }
-        fetchPlaylistData = results.toList()
-      } catch (e: Exception) {
-        error = e
-      } finally {
-        searchLoading = false
+                }
+        results.add(track)
       }
+      searchList = results
+      searchLoading = false
     }
   }
 
   suspend fun streamPlaylist() {
     streamLoading = true
-    try {
-      val results = mutableListOf<Stream>()
-      for ((index, track) in fetchPlaylistData.withIndex()) {
-        currentStreamIndex++
-        val stream =
-            runCatching {
-                  if (index != 0) delay(1000)
-                  musicApiUseCase.streamUseCase(track.id, quality = 5)
-                }
-                .getOrElse {
-                  delay(1000)
-                  musicApiUseCase.streamUseCase(track.id, quality = 5)
-                }
-        results.add(stream)
+    val results = mutableListOf<String?>()
+    for ((index, track) in searchList.withIndex()) {
+      if (track == null) {
+        results.add(null)
+        continue
       }
-      streamPlaylistData = results.toList()
-    } catch (e: Exception) {
-      error = e
-    } finally {
-      streamLoading = false
-      currentStreamIndex = -1
+      if (index != 0) delay(1000)
+      currentStreamIndex++
+      val stream =
+          runCatching { musicApiUseCase.streamUseCase(track.id, quality = 5) }
+              .getOrElse {
+                delay(2000)
+                try {
+                  musicApiUseCase.streamUseCase(track.id, quality = 5)
+                } catch (e: Exception) {
+                  error = e
+                  null
+                }
+              }
+      results.add(stream)
     }
+    streamList = results.toList()
+    streamLoading = false
+    currentStreamIndex = -1
+  }
+
+  fun downloadPlaylist() {
+    downloadSongUseCase(fileName, streamList, searchList)
   }
 
   fun reset() {
-    fetchPlaylistData = emptyList()
-    streamPlaylistData = emptyList()
-    currentFetchIndex = -1
+    searchList = emptyList()
+    streamList = emptyList()
+    currentSearchIndex = -1
     currentStreamIndex = -1
-    currentDownloadIndex = -1
-    error = null
     searchLoading = false
     streamLoading = false
-    downloadLoading = false
-  }
-
-  fun createDirectory(
-      parentDirectoryName: String =
-          Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path,
-      childDirectoryName: String,
-  ): String {
-    val letDir = File(parentDirectoryName, childDirectoryName)
-
-    if (!letDir.exists()) {
-      letDir.mkdirs()
-    }
-    return letDir.path
-  }
-
-  fun downloadSongFromStreamPlaylist() {
-    downloadLoading = true
-    val playlistName = File(fileName).nameWithoutExtension
-    val downloadPath =
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path +
-            "/${Constants.APP_DEFAULT_FOLDER_NAME}"
-
-    val playlistPath =
-        createDirectory(parentDirectoryName = downloadPath, childDirectoryName = playlistName)
-    try {
-      for ((index, stream) in streamPlaylistData.withIndex()) {
-        currentDownloadIndex++
-        ketch.download(
-            tag = "audio",
-            url = stream.url,
-            fileName = "${fetchPlaylistData[index].isrc}.mp3",
-            path = playlistPath,
-        )
-      }
-    } catch (e: Exception) {
-      error = e
-    } finally {
-      downloadLoading = false
-      currentDownloadIndex = -1
-    }
+    error = null
   }
 }
