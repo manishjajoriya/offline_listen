@@ -142,8 +142,10 @@ fun HomeScreen(modifier: Modifier) {
               color = Pink,
               trackColor = Color.White,
           )
+          Spacer(Modifier.height(Constants.smallPadding))
           Text(
               text = "${homeViewModel.currentSearchIndex + 1}/${homeViewModel.csvList.size}",
+              style = TextStyle(fontFamily = Constants.customFont, fontSize = Constants.smallFontSize),
           )
         }
       } else if (homeViewModel.streamLoading) {
@@ -157,8 +159,10 @@ fun HomeScreen(modifier: Modifier) {
               color = Pink,
               trackColor = Color.White,
           )
+          Spacer(Modifier.height(Constants.smallPadding))
           Text(
               text = "${homeViewModel.currentStreamIndex + 1}/${homeViewModel.csvList.size}",
+              style = TextStyle(fontFamily = Constants.customFont, fontSize = Constants.smallFontSize),
           )
         }
       } else if (homeViewModel.csvList.isNotEmpty() && homeViewModel.searchList.isNotEmpty()) {
@@ -168,9 +172,9 @@ fun HomeScreen(modifier: Modifier) {
         ) {
           items(homeViewModel.csvList.size) { index ->
             Row {
-              LeftPlaylistItem(homeViewModel.csvList[index], Modifier.weight(.45f))
+              LeftPlaylistItem(homeViewModel.csvList[index], Modifier.weight(.50f))
               Spacer(Modifier.width(Constants.smallPadding))
-              RightPlaylistItem(homeViewModel.searchList[index], Modifier.weight(.45f))
+              RightPlaylistItem(homeViewModel.searchList[index], Modifier.weight(.50f))
             }
           }
         }

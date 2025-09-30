@@ -114,6 +114,7 @@ constructor(
   }
 
   fun reset() {
+    fileName = ""
     searchList = emptyList()
     streamList = emptyList()
     currentSearchIndex = -1
