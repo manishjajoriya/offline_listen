@@ -7,18 +7,18 @@ import com.manishjajoriya.transferlisten.utils.Constants
 import java.io.File
 
 class FileDownloader(private val ketch: Ketch) {
-  fun downloadFiles(folderName: String, urlList: List<String?>, searchList: List<Track?>) {
+  fun downloadFiles(fileName: String, urlList: List<String?>, searchList: List<Track?>) {
 
-    val folderNameWithoutExtension = File(folderName).nameWithoutExtension
-    val downloadFolderPath =
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path +
-            "/${Constants.APP_DEFAULT_FOLDER_NAME}"
-
-    val finalDownloadLocation =
-        createDirectory(
-            parentDirectoryName = downloadFolderPath,
-            childDirectoryName = folderNameWithoutExtension,
+    val fileNameWithoutExtension = File(fileName).nameWithoutExtension
+    val publicAppDirectory =
+        File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            Constants.APP_DEFAULT_FOLDER_NAME,
         )
+
+    if (!publicAppDirectory.exists()) publicAppDirectory.mkdirs()
+    val publicPlaylistDirectory = File(publicAppDirectory, fileNameWithoutExtension)
+    if (!publicPlaylistDirectory.exists()) publicPlaylistDirectory.mkdirs()
 
     for ((index, url) in urlList.withIndex()) {
       val track = searchList[index]
@@ -28,22 +28,9 @@ class FileDownloader(private val ketch: Ketch) {
             tag = "audio",
             url = url,
             fileName = "${track.title}.mp3",
-            path = finalDownloadLocation,
+            path = publicPlaylistDirectory.absolutePath,
         )
       }
     }
-  }
-
-  fun createDirectory(
-      parentDirectoryName: String =
-          Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path,
-      childDirectoryName: String,
-  ): String {
-    val letDir = File(parentDirectoryName, childDirectoryName)
-
-    if (!letDir.exists()) {
-      letDir.mkdirs()
-    }
-    return letDir.path
   }
 }
