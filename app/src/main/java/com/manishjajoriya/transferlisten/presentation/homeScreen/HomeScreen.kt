@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,11 +42,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.manishjajoriya.transferlisten.R
 import com.manishjajoriya.transferlisten.presentation.homeScreen.component.LeftPlaylistItem
+import com.manishjajoriya.transferlisten.presentation.homeScreen.component.ProgressIndicator
 import com.manishjajoriya.transferlisten.presentation.homeScreen.component.RightPlaylistItem
-import com.manishjajoriya.transferlisten.ui.theme.Pink
 import com.manishjajoriya.transferlisten.utils.Constants
 import java.time.LocalDateTime
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(modifier: Modifier) {
 
@@ -137,15 +138,12 @@ fun HomeScreen(modifier: Modifier) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-          CircularProgressIndicator(
-              modifier = Modifier.size(48.dp),
-              color = Pink,
-              trackColor = Color.White,
-          )
+          ProgressIndicator()
           Spacer(Modifier.height(Constants.smallPadding))
           Text(
               text = "${homeViewModel.currentSearchIndex + 1}/${homeViewModel.csvList.size}",
-              style = TextStyle(fontFamily = Constants.customFont, fontSize = Constants.smallFontSize),
+              style =
+                  TextStyle(fontFamily = Constants.customFont, fontSize = Constants.smallFontSize),
           )
         }
       } else if (homeViewModel.streamLoading) {
@@ -154,15 +152,12 @@ fun HomeScreen(modifier: Modifier) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-          CircularProgressIndicator(
-              modifier = Modifier.size(48.dp),
-              color = Pink,
-              trackColor = Color.White,
-          )
+          ProgressIndicator()
           Spacer(Modifier.height(Constants.smallPadding))
           Text(
               text = "${homeViewModel.currentStreamIndex + 1}/${homeViewModel.csvList.size}",
-              style = TextStyle(fontFamily = Constants.customFont, fontSize = Constants.smallFontSize),
+              style =
+                  TextStyle(fontFamily = Constants.customFont, fontSize = Constants.smallFontSize),
           )
         }
       } else if (homeViewModel.csvList.isNotEmpty() && homeViewModel.searchList.isNotEmpty()) {

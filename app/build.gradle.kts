@@ -40,6 +40,7 @@ dependencies {
   val viewmodelVersion = "2.9.4"
   val ketchVersion = "2.0.5"
   val splashScreen = "1.0.1"
+  val material3Version = "1.5.0-alpha04"
 
   implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
   implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
@@ -50,6 +51,7 @@ dependencies {
   implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$viewmodelVersion")
   implementation("com.github.khushpanchal:Ketch:$ketchVersion")
   implementation("androidx.core:core-splashscreen:$splashScreen")
+  implementation("androidx.compose.material3:material3:$material3Version")
 
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.lifecycle.runtime.ktx)
