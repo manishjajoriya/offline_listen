@@ -83,7 +83,9 @@ constructor(
 
   suspend fun streamPlaylist() {
     streamLoading = true
+    val publicDir = downloadSongUseCase.createPublicDirectory(fileName)
     val results = mutableListOf<String?>()
+
     for ((index, track) in searchList.withIndex()) {
       if (track == null) {
         results.add(null)
@@ -102,15 +104,15 @@ constructor(
                   null
                 }
               }
+
+      val privateFile = downloadSongUseCase.downloadFileToPrivate(stream, track)
+      privateFile?.let { downloadSongUseCase.moveToPublicDownloads(it, publicDir) }
+
       results.add(stream)
     }
     streamList = results.toList()
     streamLoading = false
     currentStreamIndex = -1
-  }
-
-  fun downloadPlaylist() {
-    downloadSongUseCase(fileName, streamList, searchList)
   }
 
   fun reset() {

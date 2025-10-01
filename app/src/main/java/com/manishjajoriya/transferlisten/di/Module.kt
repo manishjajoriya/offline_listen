@@ -51,7 +51,10 @@ object Module {
           .setDownloadConfig(DownloadConfig(connectTimeOutInMs = 15000, readTimeOutInMs = 15000))
           .build(application)
 
-  @Provides @Singleton fun provideFileDownloader(ketch: Ketch) = FileDownloader(ketch)
+  @Provides
+  @Singleton
+  fun provideFileDownloader(application: Application, ketch: Ketch) =
+      FileDownloader(application, ketch)
 
   @Provides
   @Singleton
