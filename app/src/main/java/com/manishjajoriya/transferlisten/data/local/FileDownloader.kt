@@ -63,8 +63,7 @@ class FileDownloader(private val context: Context, private val ketch: Ketch) {
             FileOutputStream(destFile).use { output -> input.copyTo(output) }
           }
 
-          val isDeleted = privateFile.delete()
-          Log.i("AppStorage", "${privateFile.path} is $isDeleted")
+          privateFile.delete()
 
           return@withContext destFile
         } catch (e: IOException) {
