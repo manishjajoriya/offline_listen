@@ -3,7 +3,7 @@ package com.manishjajoriya.transferlisten.presentation.homeScreen
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
-import android.widget.Toast
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -38,6 +38,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.manishjajoriya.transferlisten.R
@@ -58,10 +60,10 @@ fun HomeScreen(modifier: Modifier) {
   val launcher =
       rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
         it?.let { uri ->
+          homeViewModel.reset()
           fileName = getFileNameFromUri(uri, context)
           homeViewModel.fileName = fileName
           homeViewModel.csvToListConverter(context, uri)
-          homeViewModel.reset()
           homeViewModel.searchPlaylist()
         }
       }
@@ -104,12 +106,7 @@ fun HomeScreen(modifier: Modifier) {
                       cornerRadius = CornerRadius(cornerRadius, cornerRadius),
                   )
                 }
-                .clickable(
-                    onClick = {
-                      launcher.launch(arrayOf("text/comma-separated-values"))
-                      Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
-                    }
-                ),
+                .clickable(onClick = { launcher.launch(arrayOf("text/comma-separated-values")) }),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -141,6 +138,16 @@ fun HomeScreen(modifier: Modifier) {
           ProgressIndicator()
           Spacer(Modifier.height(Constants.smallPadding))
           Text(
+              text =
+                  "Searching for ${homeViewModel.csvList[homeViewModel.currentSearchIndex].Track_Name}",
+              modifier = Modifier.fillMaxWidth(.8f),
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis,
+              textAlign = TextAlign.Center,
+              style =
+                  TextStyle(fontFamily = Constants.customFont, fontSize = Constants.smallFontSize),
+          )
+          Text(
               text = "${homeViewModel.currentSearchIndex + 1}/${homeViewModel.csvList.size}",
               style =
                   TextStyle(fontFamily = Constants.customFont, fontSize = Constants.smallFontSize),
@@ -155,12 +162,23 @@ fun HomeScreen(modifier: Modifier) {
           ProgressIndicator()
           Spacer(Modifier.height(Constants.smallPadding))
           Text(
+              text =
+                  "Downloading for ${homeViewModel.searchList[homeViewModel.currentStreamIndex]?.title}",
+              modifier = Modifier.fillMaxWidth(.8f),
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis,
+              textAlign = TextAlign.Center,
+              style =
+                  TextStyle(fontFamily = Constants.customFont, fontSize = Constants.smallFontSize),
+          )
+          Text(
               text = "${homeViewModel.currentStreamIndex + 1}/${homeViewModel.csvList.size}",
               style =
                   TextStyle(fontFamily = Constants.customFont, fontSize = Constants.smallFontSize),
           )
         }
       } else if (homeViewModel.csvList.isNotEmpty() && homeViewModel.searchList.isNotEmpty()) {
+        Log.i("LOG", homeViewModel.searchList.size.toString())
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(Constants.mediumPadding),

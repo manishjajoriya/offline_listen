@@ -81,41 +81,44 @@ constructor(
     }
   }
 
-  suspend fun streamPlaylist() {
-    streamLoading = true
-    val publicDir = downloadSongUseCase.createPublicDirectory(fileName)
-    val results = mutableListOf<String?>()
+  fun streamPlaylist() {
+    viewModelScope.launch {
+      streamLoading = true
+      val publicDir = downloadSongUseCase.createPublicDirectory(fileName)
+      val results = mutableListOf<String?>()
 
-    for ((index, track) in searchList.withIndex()) {
-      if (track == null) {
-        results.add(null)
-        continue
-      }
-      if (index != 0) delay(1000)
-      currentStreamIndex++
-      val stream =
-          runCatching { musicApiUseCase.streamUseCase(track.id, quality = 5) }
-              .getOrElse {
-                delay(2000)
-                try {
-                  musicApiUseCase.streamUseCase(track.id, quality = 5)
-                } catch (e: Exception) {
-                  error = e
-                  null
+      for ((index, track) in searchList.withIndex()) {
+        if (track == null) {
+          results.add(null)
+          continue
+        }
+        if (index != 0) delay(1000)
+        currentStreamIndex++
+        val stream =
+            runCatching { musicApiUseCase.streamUseCase(track.id, quality = 5) }
+                .getOrElse {
+                  delay(2000)
+                  try {
+                    musicApiUseCase.streamUseCase(track.id, quality = 5)
+                  } catch (e: Exception) {
+                    error = e
+                    null
+                  }
                 }
-              }
 
-      val privateFile = downloadSongUseCase.downloadFileToPrivate(stream, track)
-      privateFile?.let { downloadSongUseCase.moveToPublicDownloads(it, publicDir) }
+        val privateFile = downloadSongUseCase.downloadFileToPrivate(stream, track)
+        privateFile?.let { downloadSongUseCase.moveToPublicDownloads(it, publicDir) }
 
-      results.add(stream)
+        results.add(stream)
+      }
+      streamList = results.toList()
+      streamLoading = false
+      currentStreamIndex = -1
     }
-    streamList = results.toList()
-    streamLoading = false
-    currentStreamIndex = -1
   }
 
   fun reset() {
+    csvList = emptyList()
     searchList = emptyList()
     streamList = emptyList()
     currentSearchIndex = -1
