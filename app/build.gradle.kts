@@ -41,17 +41,30 @@ dependencies {
   val ketchVersion = "2.0.5"
   val splashScreen = "1.0.1"
   val material3Version = "1.5.0-alpha04"
+  val navVersion = "2.9.5"
+  val hiltNavigationCompose = "1.3.0"
 
+  // Retrofit
   implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
   implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
+  // Dagger Hilt
   implementation("com.google.dagger:hilt-android:$daggerHiltVersion")
   ksp("com.google.dagger:hilt-android-compiler:$daggerHiltVersion")
+  // Hilt navigation compose
+  implementation("androidx.hilt:hilt-navigation-compose:$hiltNavigationCompose")
+  // Coil Image
   implementation("io.coil-kt.coil3:coil-compose:$coilVersion")
   implementation("io.coil-kt.coil3:coil-network-okhttp:$coilVersion")
+  // Viewmodel
   implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$viewmodelVersion")
+  // Ketch
   implementation("com.github.khushpanchal:Ketch:$ketchVersion")
+  // Splash Screen
   implementation("androidx.core:core-splashscreen:$splashScreen")
+  // Material 3
   implementation("androidx.compose.material3:material3:$material3Version")
+  // Navigation 
+  implementation("androidx.navigation:navigation-compose:${navVersion}")
 
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.lifecycle.runtime.ktx)

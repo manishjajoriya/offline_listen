@@ -2,6 +2,7 @@ package com.manishjajoriya.transferlisten.presentation.homeScreen.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -60,18 +61,20 @@ fun LeftPlaylistItem(data: Csv, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun RightPlaylistItem(item : Item?, modifier: Modifier = Modifier) {
+fun RightPlaylistItem(item: Item?, modifier: Modifier = Modifier, onClick: (String?) -> Unit) {
   Row(
       modifier =
           modifier
               .height(68.dp)
               .background(Gray, RoundedCornerShape(8.dp))
-              .padding(horizontal = Constants.smallPadding, vertical = Constants.mediumPadding),
+              .padding(horizontal = Constants.smallPadding, vertical = Constants.mediumPadding)
+              .clickable(onClick = { onClick(item?.title) }),
       verticalAlignment = Alignment.CenterVertically,
   ) {
     if (item != null) {
       val parts = item.album.cover.split("-")
-      val coverImage = "${Constants.RESOURCE_BASE_URL}/${parts[0]}/${parts[1]}/${parts[2]}/${parts[3]}/${parts[4]}/160x160.jpg"
+      val coverImage =
+          "${Constants.RESOURCE_BASE_URL}/${parts[0]}/${parts[1]}/${parts[2]}/${parts[3]}/${parts[4]}/160x160.jpg"
       AsyncImage(
           modifier = Modifier.size(52.dp),
           model = coverImage,

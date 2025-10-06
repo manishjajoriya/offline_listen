@@ -42,19 +42,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.manishjajoriya.transferlisten.R
 import com.manishjajoriya.transferlisten.presentation.homeScreen.component.LeftPlaylistItem
 import com.manishjajoriya.transferlisten.presentation.homeScreen.component.ProgressIndicator
 import com.manishjajoriya.transferlisten.presentation.homeScreen.component.RightPlaylistItem
+import com.manishjajoriya.transferlisten.presentation.navgraph.Routes
 import com.manishjajoriya.transferlisten.utils.Constants
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun HomeScreen(modifier: Modifier) {
+fun HomeScreen(modifier: Modifier, navController: NavHostController, homeViewModel: HomeViewModel) {
 
   val context: Context = LocalContext.current
-  val homeViewModel: HomeViewModel = viewModel()
   var fileName by remember { mutableStateOf("") }
 
   val launcher =
@@ -187,7 +188,9 @@ fun HomeScreen(modifier: Modifier) {
             Row {
               LeftPlaylistItem(homeViewModel.csvList[index], Modifier.weight(.50f))
               Spacer(Modifier.width(Constants.smallPadding))
-              RightPlaylistItem(homeViewModel.searchList[index], Modifier.weight(.50f))
+              RightPlaylistItem(homeViewModel.searchList[index], Modifier.weight(.50f), onClick = { title ->
+                navController.navigate(Routes.SearchScreen.route + "/$title")
+              })
             }
           }
         }

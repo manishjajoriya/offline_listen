@@ -16,8 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.manishjajoriya.transferlisten.presentation.homeScreen.HomeScreen
+import androidx.navigation.compose.rememberNavController
 import com.manishjajoriya.transferlisten.presentation.homeScreen.HomeViewModel
+import com.manishjajoriya.transferlisten.presentation.navgraph.NavGraph
 import com.manishjajoriya.transferlisten.ui.theme.Pink
 import com.manishjajoriya.transferlisten.ui.theme.TransferListenTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,6 +31,7 @@ class MainActivity : ComponentActivity() {
     val homeViewModel: HomeViewModel by viewModels()
     enableEdgeToEdge()
     setContent {
+      val navController = rememberNavController()
       TransferListenTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -49,7 +51,7 @@ class MainActivity : ComponentActivity() {
               )
             },
         ) { innerPadding ->
-          HomeScreen(modifier = Modifier.padding(innerPadding))
+          NavGraph(Modifier.padding(innerPadding), navController)
         }
       }
     }
