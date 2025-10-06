@@ -1,14 +1,13 @@
 package com.manishjajoriya.transferlisten.data.remote
 
-import com.manishjajoriya.transferlisten.domain.model.Stream
-import com.manishjajoriya.transferlisten.domain.model.Tracks
+import com.manishjajoriya.transferlisten.domain.model.search.Song
 import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface MusicApi {
 
-  @GET("search") suspend fun search(@Query("q") searchTerm: String): Tracks
+  @GET("search/") suspend fun search(@Query("s") searchTerm: String): Song
 
-  @GET("stream")
-  suspend fun stream(@Query("trackId") trackId: Int, @Query("quality") quality: Int = 5): Stream
+  @GET("track/")
+  suspend fun stream(@Query("id") id: Int, @Query("quality") quality: String): List<Any>
 }

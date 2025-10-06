@@ -5,7 +5,7 @@ import android.os.Environment
 import android.util.Log
 import com.ketch.Ketch
 import com.ketch.Status
-import com.manishjajoriya.transferlisten.domain.model.Track
+import com.manishjajoriya.transferlisten.domain.model.search.Item
 import com.manishjajoriya.transferlisten.utils.Constants
 import java.io.File
 import java.io.FileInputStream
@@ -18,11 +18,11 @@ import kotlinx.coroutines.withContext
 
 class FileDownloader(private val context: Context, private val ketch: Ketch) {
 
-  suspend fun downloadFileToPrivate(url: String?, track: Track?): File? {
-    if (url == null || track == null) return null
+  suspend fun downloadFileToPrivate(url: String?, item: Item?): File? {
+    if (url == null || item == null) return null
 
     val privateDir = File(context.filesDir, "downloads").apply { if (!exists()) mkdirs() }
-    val privateFile = File(privateDir, "${track.title}.mp3")
+    val privateFile = File(privateDir, "${item.isrc}.mp3")
 
     // Start download
     val id =

@@ -1,6 +1,7 @@
 package com.manishjajoriya.transferlisten.di
 
 import android.app.Application
+import com.google.gson.Gson
 import com.ketch.DownloadConfig
 import com.ketch.Ketch
 import com.ketch.NotificationConfig
@@ -24,9 +25,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object Module {
 
+  @Provides @Singleton fun provideGson() = Gson()
+
   @Provides
   @Singleton
-  fun provideMusicApiInstance(): MusicApi =
+  fun provideMusicApiInstance(gson: Gson): MusicApi =
       Retrofit.Builder()
           .baseUrl(Constants.BASE_URL)
           .addConverterFactory(GsonConverterFactory.create())
@@ -35,10 +38,10 @@ object Module {
 
   @Provides
   @Singleton
-  fun provideMusicApiUseCase(musicApi: MusicApi) =
+  fun provideMusicApiUseCase(musicApi: MusicApi, gson: Gson) =
       MusicApiUseCase(
           searchUseCase = SearchUseCase(musicApi),
-          streamUseCase = StreamUseCase(musicApi),
+          streamUseCase = StreamUseCase(musicApi, gson),
       )
 
   @Provides

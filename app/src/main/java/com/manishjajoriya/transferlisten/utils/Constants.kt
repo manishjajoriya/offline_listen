@@ -9,7 +9,8 @@ import com.manishjajoriya.transferlisten.R
 
 object Constants {
 
-  const val BASE_URL = "https://dab.yeet.su/api/"
+  const val BASE_URL = "https://tidal-api-3.binimum.org/"
+  const val RESOURCE_BASE_URL = "https://resources.tidal.com/images"
 
   // Padding
   val extraSmallPadding = 4.dp
@@ -41,5 +42,5 @@ object Constants {
       )
 
   // App folder name
-  const val APP_DEFAULT_FOLDER_NAME = "TransferListen"
+  const val APP_DEFAULT_FOLDER_NAME = "OfflineListen"
 }

@@ -2,7 +2,7 @@ package com.manishjajoriya.transferlisten.utils
 
 import android.content.Context
 import android.net.Uri
-import com.manishjajoriya.transferlisten.domain.model.Csv
+import com.manishjajoriya.transferlisten.domain.model.csv.Csv
 import java.io.BufferedReader
 
 object CsvToList {

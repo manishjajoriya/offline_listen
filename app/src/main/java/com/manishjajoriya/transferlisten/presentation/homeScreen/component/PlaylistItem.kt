@@ -20,8 +20,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.manishjajoriya.transferlisten.R
-import com.manishjajoriya.transferlisten.domain.model.Csv
-import com.manishjajoriya.transferlisten.domain.model.Track
+import com.manishjajoriya.transferlisten.domain.model.csv.Csv
+import com.manishjajoriya.transferlisten.domain.model.search.Item
 import com.manishjajoriya.transferlisten.ui.theme.Gray
 import com.manishjajoriya.transferlisten.utils.Constants
 
@@ -60,7 +60,7 @@ fun LeftPlaylistItem(data: Csv, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun RightPlaylistItem(track: Track?, modifier: Modifier = Modifier) {
+fun RightPlaylistItem(item : Item?, modifier: Modifier = Modifier) {
   Row(
       modifier =
           modifier
@@ -69,11 +69,13 @@ fun RightPlaylistItem(track: Track?, modifier: Modifier = Modifier) {
               .padding(horizontal = Constants.smallPadding, vertical = Constants.mediumPadding),
       verticalAlignment = Alignment.CenterVertically,
   ) {
-    if (track != null) {
+    if (item != null) {
+      val parts = item.album.cover.split("-")
+      val coverImage = "${Constants.RESOURCE_BASE_URL}/${parts[0]}/${parts[1]}/${parts[2]}/${parts[3]}/${parts[4]}/160x160.jpg"
       AsyncImage(
           modifier = Modifier.size(52.dp),
-          model = track.images.small,
-          contentDescription = "${track.title} image",
+          model = coverImage,
+          contentDescription = "${item.title} image",
       )
     } else {
       Image(
@@ -83,12 +85,14 @@ fun RightPlaylistItem(track: Track?, modifier: Modifier = Modifier) {
       )
     }
 
+    val artists = item?.artists?.joinToString(", ") { it.name }
+
     Column(
         modifier = Modifier.padding(start = Constants.extraSmallPadding),
         verticalArrangement = Arrangement.Center,
     ) {
       Text(
-          text = track?.title ?: "No title",
+          text = item?.title ?: "No title",
           style =
               TextStyle(
                   fontSize = Constants.smallFontSize,
@@ -99,7 +103,7 @@ fun RightPlaylistItem(track: Track?, modifier: Modifier = Modifier) {
       )
       Spacer(Modifier.height(Constants.extraSmallPadding))
       Text(
-          text = track?.artist ?: "No artist",
+          text = artists ?: "No Artist",
           style =
               TextStyle(
                   fontSize = Constants.extraSmallFontSize,
